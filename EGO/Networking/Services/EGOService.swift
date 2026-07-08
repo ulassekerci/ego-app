@@ -151,7 +151,7 @@ extension EGOService {
             vehicleNo: dto.arac_no,
             plate: dto.plaka_no,
             coordinate: coordinate(lat: dto.lat, lng: dto.lng),
-            remainingSeconds: remainingSeconds(from: dto),
+            progress: progress(from: dto),
             // detay uses a ‚ (U+201A) separator; test membership rather than split.
             isArticulated: detay.contains("Körüklü"),
             isAccessible: detay.contains("Engelli"),
@@ -188,12 +188,26 @@ extension EGOService {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 
-    /// A live bus with `saniye == "999999"` (or `sure == "T.V.Süresi"`) exists but is
-    /// past the selected stop, so it has no arrival time.
-    static func remainingSeconds(from dto: BusDTO) -> Int? {
-        if dto.sure == "T.V.Süresi" { return nil }
-        guard let saniye = dto.saniye, saniye != "999999" else { return nil }
-        return EGOParse.int(saniye)
+    /// `durum`/`sure` mark a bus at the stop ("geldi"/"Geldi") or one that just left
+    /// ("gidiyor"/"Gidiyor") — `saniye` is unreliable in these states ("0" observed
+    /// for Geldi, unconfirmed for Gidiyor), so check them before the countdown.
+    /// `saniye == "999999"` / `sure == "T.V.Süresi"` means the bus is past the
+    /// selected stop with no arrival time.
+    static func progress(from dto: BusDTO) -> LiveBusProgress {
+        switch dto.durum?.lowercased() {
+        case "geldi": return .atStop
+        case "gidiyor": return .departing
+        default: break
+        }
+        switch dto.sure {
+        case "Geldi": return .atStop
+        case "Gidiyor": return .departing
+        case "T.V.Süresi": return .passed
+        default: break
+        }
+        guard let saniye = dto.saniye, saniye != "999999",
+              let seconds = EGOParse.int(saniye) else { return .passed }
+        return .arriving(seconds: seconds)
     }
 
     /// The `sure` string is `"<header>\n<text>"`; we keep the text after the newline.

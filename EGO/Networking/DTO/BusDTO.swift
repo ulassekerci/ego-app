@@ -15,7 +15,8 @@ struct BusDTO: Decodable {
     let hat_kod: String?           // line code (may be absent; fall back to hat_no)
     let hat_no: String?
     let hat_ad: String?            // line name
-    let sure: String?              // live: "6 dk" / "T.V.Süresi"; scheduled: multiline text
+    let sure: String?              // live: "6 dk" / "Geldi" / "Gidiyor" / "T.V.Süresi"; scheduled: multiline text
+    let durum: String?             // live status: "geldi" (at stop) / "gidiyor" (just left), usually ""
     let detay: String?             // live: "Solo‚ Engelli" (‚ is U+201A, not a comma)
     let plaka_no: String?
     let lat: String?

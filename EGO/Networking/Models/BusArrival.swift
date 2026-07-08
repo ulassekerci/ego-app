@@ -39,12 +39,24 @@ struct LiveBus {
     let vehicleNo: String
     let plate: String?
     let coordinate: CLLocationCoordinate2D?
-    /// Time until arrival at the selected stop; nil when the bus is past it.
-    let remainingSeconds: Int?
+    /// Where the bus is relative to the selected stop.
+    let progress: LiveBusProgress
     let isArticulated: Bool
     let isAccessible: Bool
     let stopNo: String?
     let prevStopNo: String?
+}
+
+/// A live bus's position relative to the selected stop.
+enum LiveBusProgress: Equatable {
+    /// En route; arrives in `seconds`.
+    case arriving(seconds: Int)
+    /// At the stop right now (`durum == "geldi"` / `sure == "Geldi"`).
+    case atStop
+    /// Just left the stop (`durum == "gidiyor"` / `sure == "Gidiyor"`).
+    case departing
+    /// Already past the stop (`saniye == "999999"` / `sure == "T.V.Süresi"`).
+    case passed
 }
 
 struct NextDeparture {

@@ -39,3 +39,6 @@ Every request should have these headers:
 - API returns objects that behave differently based on whether a bus is actively on the road or not, :
   - No bus: arac_no is "-" and sure contains a long newline-separated string ("Sonraki Hareket Saati...").
   - Active bus: arac_no has an ID, and fields like plaka_no, saniye, and detay appear.
+- Active buses at or just past the selected stop get special sure/durum values. saniye is unreliable in these states ("0" observed for Geldi; unconfirmed for Gidiyor), so check sure/durum before the countdown:
+  - Bus is at the stop right now: `"sure":"Geldi"` and `"durum":"geldi"`.
+  - Bus just left the stop: `"sure":"Gidiyor"` and `"durum":"gidiyor"`.
