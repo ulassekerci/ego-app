@@ -2,7 +2,7 @@
 
 ## What is EGO?
 
-EGO is the public transit organization of Ankara, Turkey. They operate hundreds of bus lines in the city, Ankara Metro and Ankaray LRT. They also run the payment system for the başkentray suburban train line, though they don't operate that line itself. The EGO branding emphasises white text on #E30A17 red a lot.
+EGO is the public transit organization of Ankara, Turkey. They operate hundreds of bus lines in the city, Ankara Metro and Ankaray LRT. They also run the payment system for the başkentray suburban train line, though they don't operate that line itself. EGO branding is documented in ego-brand.md file.
 
 ## The App
 
