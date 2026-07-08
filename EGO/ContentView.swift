@@ -9,16 +9,28 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            Tab("Home", systemImage: "house") {
+                HomeView()
+            }
+            Tab("Lines", systemImage: "bus") {
+                LinesView()
+            }
+            Tab("Card", systemImage: "creditcard") {
+                CardView()
+            }
+            Tab("More", systemImage: "ellipsis") {
+                MoreView()
+            }
         }
-        .padding()
+        .tint(Color(.egoRed))
     }
 }
 
 #Preview {
+    let session = Session()
     ContentView()
+        .environment(session)
+        .environment(EGOService(session: session))
+        .environment(SelectedStopStore())
 }

@@ -11,6 +11,7 @@ import SwiftUI
 struct EGOApp: App {
     @State private var session: Session
     @State private var service: EGOService
+    @State private var selectedStop = SelectedStopStore()
 
     init() {
         let session = Session()
@@ -23,6 +24,7 @@ struct EGOApp: App {
             ContentView()
                 .environment(session)
                 .environment(service)
+                .environment(selectedStop)
                 .task {
                     // Acquire (first run) or renew the UID on launch.
                     try? await session.connect()
