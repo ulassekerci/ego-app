@@ -17,15 +17,13 @@ struct BusArrivalRow: View {
             Text(arrival.lineCode)
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .frame(minWidth: 54)
+                .frame(width: 60, height: 48)
                 .background(Color(.egoRed), in: RoundedRectangle(cornerRadius: 8))
 
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(arrival.lineName)
                     .font(.subheadline)
-                    .lineLimit(2)
+                    .lineLimit(3)
                 subtitle
             }
 
@@ -40,21 +38,18 @@ struct BusArrivalRow: View {
         switch arrival {
         case .live(let bus):
             HStack(spacing: 6) {
-                Text(bus.plate ?? bus.vehicleNo)
-                if bus.plate != nil {
-                    Text(bus.vehicleNo)
-                }
+                Text(bus.vehicleNo)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .overlay(Capsule().stroke(.black.opacity(0.2), lineWidth: 1)
+                    )
                 Text(bus.isArticulated ? "Articulated" : "Solo")
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1)
-                    .background(.quaternary, in: Capsule())
-                if bus.isAccessible {
-                    Image(systemName: "figure.roll")
-                        .accessibilityLabel("Accessible")
-                }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .overlay(Capsule().stroke(.black.opacity(0.2), lineWidth: 1)
+                    )
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
         case .scheduled(let departure):
             Text("Next departure: \(departure.nextDepartureText)")
                 .font(.caption)
@@ -79,9 +74,9 @@ struct BusArrivalRow: View {
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(Color(.egoRed))
             case .departing:
-                Text("Departed")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text("Departing")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color(.egoRed))
             case .passed:
                 Text("Passed")
                     .font(.caption)
@@ -120,9 +115,9 @@ private extension BusArrival {
         switch self {
         case .live(let bus):
             switch bus.progress {
-            case .atStop: return 0
-            case .arriving: return 1
-            case .departing: return 2
+            case .departing: return 0
+            case .atStop: return 1
+            case .arriving: return 2
             case .passed: return 3
             }
         case .scheduled: return 4
@@ -133,23 +128,28 @@ private extension BusArrival {
 #Preview("Live and scheduled", traits: .sizeThatFitsLayout) {
     List {
         BusArrivalRow(arrival: .live(LiveBus(
-            lineCode: "413", lineName: "Çayyolu - Kızılay", vehicleNo: "1234",
-            plate: "06 ABC 123", coordinate: nil, progress: .arriving(seconds: 420),
-            isArticulated: true, isAccessible: true, stopNo: nil, prevStopNo: nil
+            lineCode: "203-7", lineName: "(ÖHO) İNCİRLİ-SOKULLU", vehicleNo: "37-026",
+            plate: "06 ABC 123", coordinate: nil, progress: .departing,
+            isArticulated: false, isAccessible: false, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .live(LiveBus(
-            lineCode: "155-6", lineName: "Atatürk Sitesi - Ulus", vehicleNo: "07-157",
+            lineCode: "154-2", lineName: "ULUS-SOKULLU", vehicleNo: "07-157",
             plate: "06 BG 3495", coordinate: nil, progress: .atStop,
             isArticulated: false, isAccessible: true, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .live(LiveBus(
-            lineCode: "413", lineName: "Çayyolu - Kızılay", vehicleNo: "5678",
+            lineCode: "183-2", lineName: "ULUS - İLKER SİNAN CD.", vehicleNo: "12-107",
+            plate: nil, coordinate: nil, progress: .arriving(seconds: 296),
+            isArticulated: true, isAccessible: true, stopNo: nil, prevStopNo: nil
+        )))
+        BusArrivalRow(arrival: .live(LiveBus(
+            lineCode: "456", lineName: "ÖRNEK-ÇALIŞKANLAR-ULUS-KIZILAY", vehicleNo: "22-108",
             plate: nil, coordinate: nil, progress: .passed,
-            isArticulated: false, isAccessible: false, stopNo: nil, prevStopNo: nil
+            isArticulated: false, isAccessible: true, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .scheduled(NextDeparture(
-            lineCode: "540", lineName: "Sincan - Ulus",
-            nextDepartureText: "00:15 / 12 dk Sonra", minutesUntil: 12
+            lineCode: "888-8", lineName: "Sincan - Ulus",
+            nextDepartureText: "00:15", minutesUntil: 12
         )))
     }
 }

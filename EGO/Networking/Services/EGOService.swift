@@ -92,7 +92,7 @@ extension EGOService {
         Line(
             id: dto.id,
             code: dto.kod,
-            name: dto.ad,
+            name: normalizeLineName(dto.ad),
             type: LineType(tur: dto.tur),
             durationMinutes: EGOParse.int(dto.sure),
             distanceKm: EGOParse.int(dto.mesafe)
@@ -131,7 +131,7 @@ extension EGOService {
 
     static func mapBusArrival(_ dto: BusDTO) -> BusArrival {
         let lineCode = dto.hat_kod ?? dto.hat_no ?? ""
-        let lineName = dto.hat_ad ?? ""
+        let lineName = normalizeLineName(dto.hat_ad ?? "")
 
         // "-" marks a placeholder for the next scheduled departure (no live bus).
         guard dto.arac_no != "-" else {
@@ -183,6 +183,12 @@ extension EGOService {
 
     // MARK: Parsing helpers
 
+    /// Kızılay's official name is the unwieldy "15 TEMMUZ KIZILAY MİLLİ İRADE
+    /// MEYDANI", which crowds out the rest of a line name. Collapse it to "KIZILAY".
+    static func normalizeLineName(_ name: String) -> String {
+        name.replacingOccurrences(of: "15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI", with: "KIZILAY")
+    }
+
     static func coordinate(lat: String?, lng: String?) -> CLLocationCoordinate2D? {
         guard let latitude = EGOParse.double(lat), let longitude = EGOParse.double(lng) else { return nil }
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
@@ -210,11 +216,12 @@ extension EGOService {
         return .arriving(seconds: seconds)
     }
 
-    /// The `sure` string is `"<header>\n<text>"`; we keep the text after the newline.
+    /// The `sure` string is `"<header>\n<time> / <N> dk Sonra"`; we keep only the time.
     static func nextDepartureText(from sure: String) -> String {
         let parts = sure.split(separator: "\n", omittingEmptySubsequences: false)
         let text = parts.last.map(String.init) ?? sure
-        return text.trimmingCharacters(in: .whitespaces)
+        let time = text.split(separator: "/", maxSplits: 1).first.map(String.init) ?? text
+        return time.trimmingCharacters(in: .whitespaces)
     }
 
     /// Minutes from the `/ N dk Sonra` fragment when present.
