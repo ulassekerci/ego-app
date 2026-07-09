@@ -189,8 +189,8 @@ extension EGOService {
     }
 
     /// `durum`/`sure` mark a bus at the stop ("geldi"/"Geldi") or one that just left
-    /// ("gidiyor"/"Gidiyor") — `saniye` is unreliable in these states ("0" observed
-    /// for Geldi, unconfirmed for Gidiyor), so check them before the countdown.
+    /// ("gidiyor"/"Gidiyor") — `saniye` is always "0" in these states, so check
+    /// `durum`/`sure` before the countdown rather than relying on `saniye`.
     /// `saniye == "999999"` / `sure == "T.V.Süresi"` means the bus is past the
     /// selected stop with no arrival time.
     static func progress(from dto: BusDTO) -> LiveBusProgress {
