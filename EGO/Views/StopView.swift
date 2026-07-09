@@ -45,7 +45,11 @@ struct StopView: View {
             ProgressView()
         } else {
             List(arrivals) { arrival in
-                BusArrivalRow(arrival: arrival)
+                NavigationLink {
+                    LineView(lineCode: arrival.lineCode, initialTab: .buses)
+                } label: {
+                    BusArrivalRow(arrival: arrival)
+                }
             }
             .refreshable { await refresh() }
             .overlay {

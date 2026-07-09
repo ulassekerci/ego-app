@@ -116,8 +116,10 @@ extension EGOService {
         var schedule: [DayType: [Departure]] = [:]
         for row in response.table_saat {
             guard let day = DayType(tur: row.tur) else { continue }
+            // detay is "-" (or empty) when the departure has no note.
+            let detail = row.detay.flatMap { $0 == "-" || $0.isEmpty ? nil : $0 }
             schedule[day, default: []].append(
-                Departure(hour: EGOParse.int(row.saat), minute: EGOParse.int(row.dakika), detail: row.detay)
+                Departure(hour: EGOParse.int(row.saat), minute: EGOParse.int(row.dakika), detail: detail)
             )
         }
 

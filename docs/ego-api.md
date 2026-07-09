@@ -37,6 +37,7 @@ Every request should have these headers:
 
 ### Notes:
 
+- In `table_saat` rows (line details), every departure has a `detay` field but it's `"-"` (or empty) when there is no actual note — treat those as no detail.
 - API returns objects that behave differently based on whether a bus is actively on the road or not, :
   - No bus: arac_no is "-" and sure contains a long newline-separated string ("Sonraki Hareket Saati...").
   - Active bus: arac_no has an ID, and fields like plaka_no, saniye, and detay appear.
