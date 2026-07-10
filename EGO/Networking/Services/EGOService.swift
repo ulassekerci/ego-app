@@ -153,6 +153,7 @@ extension EGOService {
             vehicleNo: dto.arac_no,
             plate: dto.plaka_no,
             coordinate: coordinate(lat: dto.lat, lng: dto.lng),
+            heading: EGOParse.double(dto.aci),
             progress: progress(from: dto),
             // detay uses a ‚ (U+201A) separator; test membership rather than split.
             isArticulated: detay.contains("Körüklü"),

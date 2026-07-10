@@ -4,9 +4,10 @@
 //
 //  One bus/rail line in four tabs: its stops (with total distance/duration),
 //  scheduled departures by day type, live buses relative to the selected stop,
-//  and a route map (placeholder for now).
+//  and the route on a map.
 //
 
+import MapKit
 import SwiftUI
 
 enum LineTab: Hashable {
@@ -23,6 +24,9 @@ struct LineView: View {
     @State private var detail: LineDetail?
     @State private var errorMessage: String?
     @State private var isLoading = true
+    /// Set when a bus row in the Buses tab is tapped; the Route tab consumes it
+    /// and opens zoomed in on that bus.
+    @State private var focusedBus: LiveBus?
 
     init(lineCode: String, initialTab: LineTab = .stops) {
         self.lineCode = lineCode
@@ -51,12 +55,17 @@ struct LineView: View {
 
     @ViewBuilder private var content: some View {
         switch tab {
-        case .stops, .departures:
+        case .buses:
+            LineBusesTab(lineCode: lineCode) { bus in
+                focusedBus = bus
+                tab = .route
+            }
+        case .stops, .departures, .route:
             if let detail {
-                if tab == .stops {
-                    LineStopsTab(detail: detail)
-                } else {
-                    LineDeparturesTab(schedule: detail.schedule)
+                switch tab {
+                case .stops: LineStopsTab(detail: detail)
+                case .departures: LineDeparturesTab(schedule: detail.schedule)
+                default: LineRouteTab(detail: detail, focusedBus: $focusedBus)
                 }
             } else if isLoading {
                 ProgressView()
@@ -72,14 +81,6 @@ struct LineView: View {
                     }
                 }
             }
-        case .buses:
-            LineBusesTab(lineCode: lineCode)
-        case .route:
-            ContentUnavailableView(
-                "Route",
-                systemImage: "map",
-                description: Text("The route map isn't implemented yet.")
-            )
         }
     }
 
@@ -240,6 +241,8 @@ private extension DayType {
 
 private struct LineBusesTab: View {
     let lineCode: String
+    /// Called with a tapped live bus so the parent can show it on the route map.
+    let showOnMap: (LiveBus) -> Void
 
     @Environment(EGOService.self) private var service
     @Environment(Session.self) private var session
@@ -268,7 +271,19 @@ private struct LineBusesTab: View {
                 List {
                     Section {
                         ForEach(arrivals) { arrival in
-                            BusArrivalRow(arrival: arrival)
+                            // Live buses with a position open the route map zoomed
+                            // in on them; the rest stay plain rows.
+                            if case .live(let bus) = arrival, bus.coordinate != nil {
+                                Button {
+                                    showOnMap(bus)
+                                } label: {
+                                    BusArrivalRow(arrival: arrival)
+                                        .contentShape(.rect)
+                                }
+                                .buttonStyle(.plain)
+                            } else {
+                                BusArrivalRow(arrival: arrival)
+                            }
                         }
                     } header: {
                         if let stop = selectedStop.stop {
@@ -302,6 +317,214 @@ private struct LineBusesTab: View {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+}
+
+// MARK: - Route
+
+private struct LineRouteTab: View {
+    let detail: LineDetail
+    @Binding var focusedBus: LiveBus?
+
+    @Environment(EGOService.self) private var service
+    @Environment(Session.self) private var session
+
+    @State private var buses: [LiveBus] = []
+    @State private var busError: String?
+    @State private var isLoadingBuses = false
+    @State private var selectedBusID: String?
+    @State private var position: MapCameraPosition = .automatic
+
+    init(detail: LineDetail, focusedBus: Binding<LiveBus?>) {
+        self.detail = detail
+        _focusedBus = focusedBus
+        // Arriving from a bus row: open zoomed in on that bus, pre-selected so
+        // its detail card shows once the live positions load.
+        if let bus = focusedBus.wrappedValue, let coordinate = bus.coordinate {
+            _position = State(initialValue: .camera(MapCamera(centerCoordinate: coordinate, distance: 4000)))
+            _selectedBusID = State(initialValue: bus.vehicleNo)
+        }
+    }
+
+    var body: some View {
+        if detail.routeCoordinates.isEmpty, detail.stops.isEmpty {
+            ContentUnavailableView(
+                "No Route",
+                systemImage: "map",
+                description: Text("EGO doesn't provide route geometry for this line.")
+            )
+        } else {
+            // The default camera position (.automatic) frames the map content.
+            // Pan/zoom only: locked north-up and 2D, which also keeps the bus
+            // heading wedges accurate (they rotate relative to screen-north).
+            Map(position: $position, interactionModes: [.pan, .zoom], selection: $selectedBusID) {
+                if !detail.routeCoordinates.isEmpty {
+                    MapPolyline(coordinates: detail.routeCoordinates)
+                        .stroke(Color(.egoRed), style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
+                }
+                ForEach(detail.stops) { stop in
+                    if let coordinate = stop.coordinate {
+                        // Collision handling hides the crowded titles until
+                        // the user zooms in; the circles always stay visible.
+                        Annotation(stop.name, coordinate: coordinate) {
+                            Text(stop.order.map(String.init) ?? "·")
+                                .font(.caption2.weight(.bold).monospacedDigit())
+                                // 3-digit orders (100+ stop lines) shrink to fit
+                                // instead of overflowing the circle.
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                                .padding(.horizontal, 3)
+                                .foregroundStyle(Color(.egoRed))
+                                .frame(width: 22, height: 22)
+                                .background(.white, in: .circle)
+                                .overlay(Circle().stroke(Color(.egoRed), lineWidth: 2))
+                        }
+                    }
+                }
+                // Annotations stack by latitude (no z-priority in SwiftUI MapKit),
+                // so a bus north of a stop draws behind its circle. The bus chips
+                // are larger than the circles and blue, so they stay identifiable
+                // even when partially covered.
+                ForEach(buses, id: \.vehicleNo) { bus in
+                    if let coordinate = bus.coordinate {
+                        Annotation(bus.vehicleNo, coordinate: coordinate) {
+                            BusMarker(bus: bus, isSelected: bus.vehicleNo == selectedBusID)
+                        }
+                        .tag(bus.vehicleNo)
+                    }
+                }
+            }
+            .mapStyle(.standard(pointsOfInterest: .excludingAll))
+            .task {
+                // One-shot: leaving and reopening the tab frames the whole route.
+                focusedBus = nil
+                await loadBuses()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if isLoadingBuses {
+                        ProgressView()
+                    } else {
+                        Button("Refresh Buses", systemImage: "arrow.clockwise") {
+                            Task { await loadBuses() }
+                        }
+                    }
+                }
+            }
+            .overlay(alignment: .bottom) {
+                VStack(spacing: 8) {
+                    if let busError {
+                        Label(busError, systemImage: "wifi.exclamationmark")
+                            .font(.footnote)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(.thinMaterial, in: .capsule)
+                    }
+                    if let bus = buses.first(where: { $0.vehicleNo == selectedBusID }) {
+                        BusDetailCard(bus: bus) { selectedBusID = nil }
+                    }
+                }
+                .padding(.bottom, 8)
+            }
+        }
+    }
+
+    /// Bus positions are a live overlay on the static route: a failure keeps the
+    /// map usable and just surfaces the banner.
+    private func loadBuses() async {
+        isLoadingBuses = true
+        busError = nil
+        do {
+            if session.uid == nil { try await session.connect() }
+            // No DURAK: arrival times don't matter here, only positions.
+            buses = try await service.buses(line: detail.line.code, stop: nil).compactMap {
+                if case .live(let bus) = $0 { return bus }
+                return nil
+            }
+        } catch {
+            busError = error.localizedDescription
+        }
+        isLoadingBuses = false
+    }
+}
+
+/// A bus on the map: red circle with a bus glyph, plus a pointer wedge orbiting
+/// the circle to show the direction of travel. The wedge (not the glyph) rotates
+/// so the icon stays upright.
+private struct BusMarker: View {
+    let bus: LiveBus
+    let isSelected: Bool
+
+    var body: some View {
+        ZStack {
+            if let heading = bus.heading {
+                // offset then rotate: the rotation anchor stays at the circle's
+                // center, so the wedge orbits it and points outward.
+                PointerWedge()
+                    .fill(.blue)
+                    .frame(width: 14, height: 9)
+                    .offset(y: -26)
+                    .rotationEffect(.degrees(heading))
+            }
+            Image(systemName: "bus")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(.white)
+                .frame(width: 38, height: 38)
+                .background(.blue, in: .circle)
+                .overlay(Circle().stroke(.white, lineWidth: 2))
+        }
+        .scaleEffect(isSelected ? 1.2 : 1)
+        .animation(.snappy, value: isSelected)
+    }
+}
+
+/// Upward-pointing triangle; rotated by the bus heading.
+private struct PointerWedge: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+            path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+            path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+            path.closeSubpath()
+        }
+    }
+}
+
+/// Details for the selected bus, floating over the bottom of the map.
+private struct BusDetailCard: View {
+    let bus: LiveBus
+    let dismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Bus \(bus.vehicleNo)")
+                    .font(.headline)
+                if let plate = bus.plate {
+                    Text(plate)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                HStack(spacing: 12) {
+                    Label(bus.isArticulated ? "Articulated" : "Solo", systemImage: "bus")
+                    if bus.isAccessible {
+                        Label("Accessible", systemImage: "figure.roll")
+                    }
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(14)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.horizontal)
     }
 }
 

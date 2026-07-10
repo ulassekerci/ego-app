@@ -129,22 +129,22 @@ private extension BusArrival {
     List {
         BusArrivalRow(arrival: .live(LiveBus(
             lineCode: "203-7", lineName: "(ÖHO) İNCİRLİ-SOKULLU", vehicleNo: "37-026",
-            plate: "06 ABC 123", coordinate: nil, progress: .departing,
+            plate: "06 ABC 123", coordinate: nil, heading: nil, progress: .departing,
             isArticulated: false, isAccessible: false, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .live(LiveBus(
             lineCode: "154-2", lineName: "ULUS-SOKULLU", vehicleNo: "07-157",
-            plate: "06 BG 3495", coordinate: nil, progress: .atStop,
+            plate: "06 BG 3495", coordinate: nil, heading: nil, progress: .atStop,
             isArticulated: false, isAccessible: true, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .live(LiveBus(
             lineCode: "183-2", lineName: "ULUS - İLKER SİNAN CD.", vehicleNo: "12-107",
-            plate: nil, coordinate: nil, progress: .arriving(seconds: 296),
+            plate: nil, coordinate: nil, heading: nil, progress: .arriving(seconds: 296),
             isArticulated: true, isAccessible: true, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .live(LiveBus(
             lineCode: "456", lineName: "ÖRNEK-ÇALIŞKANLAR-ULUS-KIZILAY", vehicleNo: "22-108",
-            plate: nil, coordinate: nil, progress: .passed,
+            plate: nil, coordinate: nil, heading: nil, progress: .passed,
             isArticulated: false, isAccessible: true, stopNo: nil, prevStopNo: nil
         )))
         BusArrivalRow(arrival: .scheduled(NextDeparture(

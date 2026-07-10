@@ -22,7 +22,7 @@ I want to build an app that pulls information from ego api and displays to user.
   - Line Stops: Lists stops of that bus line, also has information of total line distance and duration.
   - Departures: Lists departures of a line. Has a segmented control at the top for choosing between weekdays/saturday/sunday.
   - Busses: Lists busses on the road. It should have the same component as the list on the Stop screen and should fetch and display the live arriving times for this line and selected stop, fetch data when this screen is visible and let user refresh by pulling down the list.
-  - Route: This will have a map but for now leave empty, we'll look at this later.
+  - Route: Route tab will show a map of the route. Map should display the route line and markers for stop and bus locations.
 
 ### Notes:
 

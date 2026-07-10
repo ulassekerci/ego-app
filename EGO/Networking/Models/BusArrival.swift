@@ -39,6 +39,8 @@ struct LiveBus {
     let vehicleNo: String
     let plate: String?
     let coordinate: CLLocationCoordinate2D?
+    /// Degrees clockwise from north, from the API's `aci` field.
+    let heading: Double?
     /// Where the bus is relative to the selected stop.
     let progress: LiveBusProgress
     let isArticulated: Bool

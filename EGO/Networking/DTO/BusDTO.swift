@@ -21,6 +21,7 @@ struct BusDTO: Decodable {
     let plaka_no: String?
     let lat: String?
     let lng: String?
+    let aci: String?               // heading in degrees clockwise from north
     let saniye: String?            // remaining seconds; "999999" ⇒ not arriving here
     let durak_no: String?
     let onceki_durak_no: String?
