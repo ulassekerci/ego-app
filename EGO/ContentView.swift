@@ -33,4 +33,5 @@ struct ContentView: View {
         .environment(session)
         .environment(EGOService(session: session))
         .environment(SelectedStopStore())
+        .environment(CardStore())
 }

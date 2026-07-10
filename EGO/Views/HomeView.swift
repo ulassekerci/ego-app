@@ -44,12 +44,20 @@ struct HomeView: View {
             .onChange(of: stopCode) { _, newValue in
                 handleInput(newValue)
             }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") { isFieldFocused = false }
+            // Not a keyboard toolbar: that bar sits flush against the keyboard,
+            // while a bottom safe-area inset floats above it with its own gap.
+            .safeAreaInset(edge: .bottom) {
+                if isFieldFocused {
+                    HStack {
+                        Spacer()
+                        Button("Done") { isFieldFocused = false }
+                            .buttonStyle(.glass)
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 8)
                 }
             }
+            .animation(.default, value: isFieldFocused)
             .navigationDestination(for: String.self) { code in
                 StopView(stopCode: code)
             }

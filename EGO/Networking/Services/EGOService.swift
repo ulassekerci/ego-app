@@ -177,7 +177,11 @@ extension EGOService {
             date: EGOParse.date(dto.tarih),
             amount: EGOParse.decimal(dto.dusen),
             remaining: EGOParse.decimal(dto.kalan),
+            // dusen/kalan are "0" on ABO rows; kalan_abo is "0" on balance rows,
+            // so only surface it for actual subscription rides.
+            subscriptionRemaining: dto.islem_tur == "ABO" ? EGOParse.int(dto.kalan_abo) : nil,
             line: dto.hat,
+            vehicleNo: dto.arac_no,
             type: dto.islem_ack,
             description: dto.islem
         )

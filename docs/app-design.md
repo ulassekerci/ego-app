@@ -12,7 +12,7 @@ I want to build an app that pulls information from ego api and displays to user.
 
 1. Home: This screen should have a large text input for entering stop number. All the bus stops have a 5-digit number. So entering this number should send user to that stop's screen.
 2. Lines: This screen should have a segmented control on top to switch between bus/rail lines, a search bar and list all the lines. Lines should have the line number and name.
-3. Card: This screen should display information about user's EGO Card. Balance and subscription last date (if there is one) should be shown directly and past card usage should be shown in a swiftui sheet when past usage button is pressed. There should be a top up button that opens the website in safari. Users should also be able to add multiple cards but only one can be the main card.
+3. Card: This screen should display information about user's EGO Card. Balance and subscription last date (if there is one) should be shown directly and past card usage should be shown in a swiftui sheet when past usage button is pressed. There should be a top up button that opens the website in safari. Users should be able to add multiple cards to app and name them but only one can be the main card. Adding a card only requires a 16-digit card number (and a user-given name), display the digits in groups of 4 as physical card does.
 4. More: This screen can be empty, I have some plans for later.
 
 ### Other Screens
@@ -29,3 +29,4 @@ I want to build an app that pulls information from ego api and displays to user.
 - Store user cards in UserDefaults.
 - Store selected stop in @Observable, it doesn't need persistent storage but multiple screens should be able to access it (for example busses tab of lines screen).
 - If user enters Busses tab of Lines screen, use FNC=Otobus endpoint to query data. You can omit the DURAK parameter if no stop has selected and it's also fine if selected stop is irrelevant to that line.
+- Card top-up button opens the official payment page in Safari: `https://baskentulasim.com/guest-payment?kartno=<16-digit card number>`. The `kartno` query parameter pre-fills the card number field on the page.

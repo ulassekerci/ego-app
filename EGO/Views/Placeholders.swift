@@ -2,26 +2,22 @@
 //  Placeholders.swift
 //  EGO
 //
-//  Stub tabs — Card and More are specified in docs/app-design.md but not
-//  built yet. Each stub gets replaced by a real screen in its own file.
+//  Stub tabs — More is intentionally near-empty per docs/app-design.md.
 //
 
 import SwiftUI
 
-struct CardView: View {
-    var body: some View {
-        NavigationStack {
-            ContentUnavailableView("Card", systemImage: "creditcard", description: Text("Not implemented."))
-                .navigationTitle("Card")
-        }
-    }
-}
-
 struct MoreView: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView("More", systemImage: "ellipsis.circle", description: Text("Not implemented."))
-                .navigationTitle("More")
+            List {
+                NavigationLink {
+                    DebugView()
+                } label: {
+                    Label("Debug", systemImage: "ladybug")
+                }
+            }
+            .navigationTitle("More")
         }
     }
 }

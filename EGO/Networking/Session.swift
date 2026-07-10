@@ -37,4 +37,12 @@ final class Session {
         uid = response.userID
         UserDefaults.standard.set(response.userID, forKey: defaultsKey)
     }
+
+    /// Discards the stored UID and connects without one so the server mints a
+    /// fresh identity — the recovery path when the old UID stops being accepted.
+    func createNewUID() async throws {
+        uid = nil
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
+        try await connect()
+    }
 }

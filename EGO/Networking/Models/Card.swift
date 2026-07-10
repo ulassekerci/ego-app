@@ -18,7 +18,10 @@ struct CardTransaction: Identifiable {
     let date: Date?
     let amount: Decimal?
     let remaining: Decimal?
+    /// Rides left on the subscription; only set on subscription (ABO) rows.
+    let subscriptionRemaining: Int?
     let line: String?
+    let vehicleNo: String?
     let type: String?
     let description: String?
 }

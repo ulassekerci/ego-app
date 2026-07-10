@@ -54,6 +54,7 @@ The app sits on a typed async networking layer (`EGO/Networking/`) that hides th
 - Every request also appends `LAN=tr`. Base URL: `https://egocptsrvios.ego.gov.tr/hibrit/`.
 - Every number and date in responses is a **string**. Parse with `en_US_POSIX`; dates are `dd.MM.yyyy HH:mm:ss` in `Europe/Istanbul`.
 - Success is signalled by `status == "TRUE"` in the JSON body (not just HTTP 200). Most responses wrap rows in a `table` array.
+- **On a bad request the body may be the bare string `oge` or `ego2`** (still HTTP 200) instead of JSON — an ambiguous error marker; treat like HTTP 400.
 - **Bus objects are dual-shaped.** Discriminate on `arac_no`: `"-"` = a scheduled "next departure" placeholder (parse `sure`); otherwise a live bus. A live bus with `saniye == "999999"` / `sure == "T.V.Süresi"` exists but is past the selected stop → no arrival time. `sure == "Geldi"` (+ `durum == "geldi"`) = at the stop right now; `sure == "Gidiyor"` (+ `durum == "gidiyor"`) = just left it — `saniye` is always `"0"` in both states, so check `sure`/`durum` before parsing the countdown rather than relying on `saniye`. `detay` uses a `‚` (U+201A) separator — don't split on it; test `.contains("Körüklü")` (articulated) / `.contains("Engelli")` (accessible).
 - The `yol` route string in line details is space-separated `lng,lat,0` triplets — **longitude comes first**.
 - Skip the `doluluk` (occupancy) and `trafik` (traffic) fields in bus responses. `trafik` isn't needed and `doluluk` isn't provided by EGO yet.

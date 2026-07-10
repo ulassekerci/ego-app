@@ -12,6 +12,7 @@ struct EGOApp: App {
     @State private var session: Session
     @State private var service: EGOService
     @State private var selectedStop = SelectedStopStore()
+    @State private var cardStore = CardStore()
 
     init() {
         let session = Session()
@@ -25,6 +26,7 @@ struct EGOApp: App {
                 .environment(session)
                 .environment(service)
                 .environment(selectedStop)
+                .environment(cardStore)
                 .task {
                     // Acquire (first run) or renew the UID on launch.
                     try? await session.connect()
