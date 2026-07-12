@@ -1,0 +1,60 @@
+{
+  "fill" : "system-dark",
+  "groups" : [
+    {
+      "blur-material" : null,
+      "hidden" : false,
+      "layers" : [
+        {
+          "blend-mode" : "hard-light",
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "egoRed 2.svg",
+          "name" : "egoRed 2",
+          "position" : {
+            "scale" : 1.1,
+            "translation-in-points" : [
+              167.65553022903902,
+              -45.48814102822524
+            ]
+          }
+        },
+        {
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "conecto 2.svg",
+          "name" : "conecto 2",
+          "position" : {
+            "scale" : 1.36,
+            "translation-in-points" : [
+              151.97288093905848,
+              -137.58156207249579
+            ]
+          }
+        }
+      ],
+      "position" : {
+        "scale" : 1.6,
+        "translation-in-points" : [
+          -11.677286698675744,
+          220.13049931599335
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
