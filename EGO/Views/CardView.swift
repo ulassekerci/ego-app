@@ -66,8 +66,10 @@ struct CardView: View {
                     Button("Past Usage", systemImage: "clock.arrow.circlepath") {
                         usageCard = card
                     }
-                    Link(destination: topUpURL(for: card)) {
-                        Label("Top Up", systemImage: "creditcard")
+                    if let topUpURL = topUpURL(for: card) {
+                        Link(destination: topUpURL) {
+                            Label("Top Up", systemImage: "creditcard")
+                        }
                     }
                 }
                 .foregroundStyle(Color(.egoRed))
@@ -119,8 +121,10 @@ struct CardView: View {
     }
 
     /// Official payment page; `kartno` pre-fills the card number field.
-    private func topUpURL(for card: UserCard) -> URL {
-        URL(string: "https://baskentulasim.com/guest-payment?kartno=\(card.number)")!
+    private func topUpURL(for card: UserCard) -> URL? {
+        var components = URLComponents(string: "https://baskentulasim.com/guest-payment")
+        components?.queryItems = [URLQueryItem(name: "kartno", value: card.number)]
+        return components?.url
     }
 
     private func load() async {
