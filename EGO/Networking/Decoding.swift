@@ -28,18 +28,18 @@ enum EGOParse {
         return Decimal(string: string, locale: posix)
     }
 
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.locale = posix
-        formatter.dateFormat = "dd.MM.yyyy HH:mm:ss"
-        formatter.timeZone = TimeZone(identifier: "Europe/Istanbul")
-        return formatter
-    }()
+    /// The API's fixed `dd.MM.yyyy HH:mm:ss`, 24-hour and Istanbul-local. A value
+    /// type, unlike the legacy `DateFormatter`.
+    private static let dateStrategy = Date.ParseStrategy(
+        format: "\(day: .twoDigits).\(month: .twoDigits).\(year: .defaultDigits) \(hour: .twoDigits(clock: .twentyFourHour, hourCycle: .zeroBased)):\(minute: .twoDigits):\(second: .twoDigits)",
+        locale: posix,
+        timeZone: TimeZone(identifier: "Europe/Istanbul") ?? .current
+    )
 
     static func date(_ string: String?) -> Date? {
         guard let string else { return nil }
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
-        return dateFormatter.date(from: trimmed)
+        return try? Date(trimmed, strategy: dateStrategy)
     }
 }
