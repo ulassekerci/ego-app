@@ -18,7 +18,7 @@ struct BusArrivalRow: View {
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(.white)
                 .frame(width: 60, height: 48)
-                .background(Color(.egoRed), in: RoundedRectangle(cornerRadius: 8))
+                .background(Color(.egoRed), in: .rect(cornerRadius: 8))
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(arrival.lineName)

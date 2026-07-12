@@ -193,7 +193,7 @@ extension EGOService {
     /// Kızılay's official name is the unwieldy "15 TEMMUZ KIZILAY MİLLİ İRADE
     /// MEYDANI", which crowds out the rest of a line name. Collapse it to "KIZILAY".
     static func normalizeLineName(_ name: String) -> String {
-        name.replacingOccurrences(of: "15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI", with: "KIZILAY")
+        name.replacing("15 TEMMUZ KIZILAY MİLLİ İRADE MEYDANI", with: "KIZILAY")
     }
 
     static func coordinate(lat: String?, lng: String?) -> CLLocationCoordinate2D? {

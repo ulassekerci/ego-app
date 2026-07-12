@@ -29,7 +29,7 @@ struct HomeView: View {
                         .font(.system(size: 44, weight: .semibold, design: .rounded))
                         .multilineTextAlignment(.center)
                         .padding(.vertical, 16)
-                        .background(Color(.systemGray6), in: RoundedRectangle(cornerRadius: 16))
+                        .background(Color(.systemGray6), in: .rect(cornerRadius: 16))
                         .focused($isFieldFocused)
 
                     Text("Enter the 5-digit stop number")

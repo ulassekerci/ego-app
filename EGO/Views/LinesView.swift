@@ -110,7 +110,7 @@ private struct LineRow: View {
                 .font(.subheadline.weight(.bold).monospacedDigit())
                 .foregroundStyle(.white)
                 .frame(width: 60, height: 40)
-                .background(Color(.egoRed), in: RoundedRectangle(cornerRadius: 8))
+                .background(Color(.egoRed), in: .rect(cornerRadius: 8))
 
             Text(line.name)
                 .font(.subheadline)

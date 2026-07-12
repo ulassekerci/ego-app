@@ -172,8 +172,8 @@ private struct LineDeparturesTab: View {
 
             List {
                 ForEach(hourGroups, id: \.hour) { group in
-                    Section(group.hour.map { String(format: "%02d", $0) } ?? "Other") {
-                        ForEach(Array(group.departures.enumerated()), id: \.offset) { _, departure in
+                    Section(group.hour.map(padded) ?? "Other") {
+                        ForEach(group.departures.enumerated(), id: \.offset) { _, departure in
                             HStack(alignment: .firstTextBaseline, spacing: 12) {
                                 Text(timeText(departure))
                                     .font(.subheadline.weight(.semibold).monospacedDigit())
@@ -220,7 +220,12 @@ private struct LineDeparturesTab: View {
         guard let hour = departure.hour, let minute = departure.minute else {
             return "—"
         }
-        return String(format: "%02d:%02d", hour, minute)
+        return "\(padded(hour)):\(padded(minute))"
+    }
+
+    /// Zero-pads an hour or minute to two digits (e.g. 9 → "09").
+    private func padded(_ value: Int) -> String {
+        value.formatted(.number.precision(.integerLength(2)))
     }
 }
 
@@ -523,7 +528,7 @@ private struct BusDetailCard: View {
             }
         }
         .padding(14)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .background(.regularMaterial, in: .rect(cornerRadius: 14))
         .padding(.horizontal)
     }
 }
